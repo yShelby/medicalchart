@@ -1,0 +1,53 @@
+import asyncio
+from collections.abc import AsyncIterator
+
+from app.schemas.chart import MockScenario, STTResult
+
+# Medical-example (mock) sample scripts only, used to validate pipeline wiring.
+_SCRIPTS: dict[MockScenario, list[str]] = {
+    "default": [
+        "환자분이",
+        "환자분이 요즘 잠을",
+        "환자분이 요즘 잠을 잘 못 이루고",
+        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함.",
+    ],
+    "risk_mentioned": [
+        "환자분이",
+        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함.",
+        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함. 최근에는 죽고 싶다는 생각이",
+        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함. 최근에는 죽고 싶다는 생각이 든다고 직접 호소함.",
+    ],
+}
+
+
+class MockStreamingSTTEngine:
+    """Ignores actual audio content; plays back a canned script on a timer
+    to validate the streaming pipeline/UI before a real local model is wired in.
+    """
+
+    def __init__(self, scenario: MockScenario = "default", interval_sec: float = 0.8) -> None:
+        self._script = _SCRIPTS.get(scenario, _SCRIPTS["default"])
+        self._interval = interval_sec
+        self._stopped = asyncio.Event()
+        self._final_text = ""
+
+    def push_chunk(self, chunk: bytes) -> None:
+        pass  # mock: real audio content is ignored
+
+    async def partials(self) -> AsyncIterator[str]:
+        for text in self._script:
+            if self._stopped.is_set():
+                break
+            await asyncio.sleep(self._interval)
+            if self._stopped.is_set():
+                break
+            self._final_text = text
+            yield text
+
+    def request_stop(self) -> None:
+        self._stopped.set()
+
+    async def finalize(self) -> STTResult:
+        self._stopped.set()
+        final_text = self._final_text or self._script[-1]
+        return STTResult(transcript=final_text, confidence=0.0, language="ko")
