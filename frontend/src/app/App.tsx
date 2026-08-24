@@ -88,6 +88,7 @@ export default function App() {
 
                 {activeTab === "chart" && (
                   <ChartTab
+                    patientId={patient.id}
                     visits={patientVisits}
                     recording={recording}
                     onStartRecording={() => setRecording(true)}

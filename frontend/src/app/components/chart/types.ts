@@ -18,6 +18,18 @@ export interface Visit {
   meds: string[];
 }
 
+export interface AiChartResult {
+  cc: string;
+  s: string;
+  o: ObjectiveEntry[];
+  a: string;
+  p: string;
+  risk: Visit["risk"];
+  notes: string;
+  dx: string[];
+  meds: string[];
+}
+
 export interface Assessment {
   date: string;
   scale: string;

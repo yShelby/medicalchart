@@ -4,6 +4,7 @@ import { VisitCard } from "../VisitCard";
 import { NewVisitForm } from "../NewVisitForm";
 
 interface ChartTabProps {
+  patientId: string;
   visits: Visit[];
   recording: boolean;
   onStartRecording: () => void;
@@ -14,6 +15,7 @@ interface ChartTabProps {
 }
 
 export function ChartTab({
+  patientId,
   visits,
   recording,
   onStartRecording,
@@ -33,7 +35,7 @@ export function ChartTab({
         )}
       </div>
 
-      {recording && <NewVisitForm onSave={onSaveVisit} onCancel={onCancelRecording} />}
+      {recording && <NewVisitForm patientId={patientId} onSave={onSaveVisit} onCancel={onCancelRecording} />}
 
       <div className="space-y-1">
         {visits.length === 0 && <div className="py-12 text-center text-muted-foreground text-[13px]">진료 기록이 없습니다.</div>}
