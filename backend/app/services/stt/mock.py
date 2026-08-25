@@ -4,18 +4,22 @@ from collections.abc import AsyncIterator
 from app.schemas.chart import MockScenario, STTResult
 
 # Medical-example (mock) sample scripts only, used to validate pipeline wiring.
+# Each entry is the cumulative transcript so far (simulating incremental streaming
+# ASR output), alternating between patient and doctor turns separated by "\n".
+# No speaker labels ("환자:"/"의사:") — real STT output has no diarization, so the
+# mock must not fabricate a capability the real pipeline won't have.
 _SCRIPTS: dict[MockScenario, list[str]] = {
     "default": [
-        "환자분이",
-        "환자분이 요즘 잠을",
-        "환자분이 요즘 잠을 잘 못 이루고",
-        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?\n한 2주 정도 됐어요. 계속 피곤하고 아무것도 하기 싫어요.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?\n한 2주 정도 됐어요. 계속 피곤하고 아무것도 하기 싫어요.\n알겠습니다. 그 부분 좀 더 자세히 여쭤볼게요.",
     ],
     "risk_mentioned": [
-        "환자분이",
-        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함.",
-        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함. 최근에는 죽고 싶다는 생각이",
-        "환자분이 요즘 잠을 잘 못 이루고 식욕이 줄었다고 호소함. 최근에는 죽고 싶다는 생각이 든다고 직접 호소함.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?\n한 2주 정도 됐어요. 요즘엔 가끔 죽고 싶다는 생각도 들어요.",
+        "요즘 잠을 잘 못 이루고 식욕이 줄었어요.\n힘드시겠군요. 언제부터 그러셨나요?\n한 2주 정도 됐어요. 요즘엔 가끔 죽고 싶다는 생각도 들어요.\n그런 생각이 드실 때 많이 힘드셨겠어요. 좀 더 자세히 말씀해주시겠어요?",
     ],
 }
 

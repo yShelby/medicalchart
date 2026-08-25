@@ -1,4 +1,4 @@
-from app.schemas.chart import NEREntity, ObjectiveEntry, SoapChart
+from app.schemas.chart import NEREntity, SoapChart
 
 # Medical-example (mock) sample SOAP output only, used to validate pipeline wiring
 # and the Visit field mapping - not real clinical output.
@@ -14,21 +14,21 @@ class MockLLMEngine:
     def generate_soap(self, transcript: str, entities: list[NEREntity]) -> SoapChart:
         mentions_risk = any(keyword in transcript for keyword in _SUICIDE_KEYWORDS)
 
-        s_lines = ["- 수면 개시 어려움 호소", "- 식욕 저하 동반"]
+        s_lines = ["- 수면 개시 어려움 호소", "- 식욕 저하 동반", "- 약 2주간 지속, 피로감 및 무의욕감 호소"]
         if mentions_risk:
             s_lines.append("- 죽고 싶다는 생각이 든다고 직접 호소")
 
+        # Only cc/s/risk are grounded in the (mock) transcript. O/A/P/dx/meds would
+        # require clinical judgment the transcript alone doesn't provide, so they're
+        # left empty rather than fabricated - same rule as the suicide-risk check below.
         return SoapChart(
             cc="수면 장애, 식욕 저하",
             s="\n".join(s_lines),
-            o=[
-                ObjectiveEntry(category="기분", value="우울감 관찰됨"),
-                ObjectiveEntry(category="병식", value="양호"),
-            ],
-            a="F32.1 중등도 우울 에피소드 의심 (예시)",
-            p="- 항우울제 유지\n- 2주 후 재평가",
+            o=[],
+            a="",
+            p="",
             risk="high" if mentions_risk else None,
             notes="AI 음성 차트로 자동 생성됨 (검토 필요)",
-            dx=["F32.1 중등도 우울 에피소드 (예시)"],
+            dx=[],
             meds=[],
         )
