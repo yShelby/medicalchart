@@ -224,3 +224,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Personal Claude Code MCP server config (e.g. colab-mcp) - not shared with the team
+.mcp.json
